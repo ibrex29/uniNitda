@@ -1,0 +1,95 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  phoneNumber  String?
+  email        String  @unique
+  password     String
+  isActive     Boolean @default(false)
+  authStrategy String?
+  role         String  @default("user")
+
+  firstName  String
+  lastName   String
+  otherNames String?
+  gender     String
+  dob        DateTime
+  address    String
+  state      String
+  country    String   @default("nigeria")
+
+  createdByUserId   String?
+  createdCompanies  Company[]  @relation(name: "company_created_by_user")
+  updatedCompanies  Company[]  @relation(name: "company_updated_by_user")
+  createdEmployees  Employee[] @relation(name: "employee_created_by_user")
+  updatedEmployees  Employee[] @relation(name: "employee_updated_by_user")
+  employeeCompanies Employee[] @relation(name: "employee_user")
+
+  @@map("user")
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  name        String
+  email       String  @unique
+  phoneNumber String?
+  address     String
+  state       String
+  country     String  @default("nigeria")
+
+  createdByUserId String
+  updatedByUserId String?
+  createdBy       User    @relation(fields: [createdByUserId], references: [id], name: "company_created_by_user")
+  updatedBy       User?   @relation(fields: [updatedByUserId], references: [id], name: "company_updated_by_user")
+
+  employees Employee[] @relation(name: "employee_company")
+
+  @@map("company")
+}
+
+model Employee {
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  companyId String
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], name: "employee_user")
+  company   Company @relation(fields: [companyId], references: [id], name: "employee_company")
+
+  createdByUserId String
+  updatedByUserId String?
+  createdBy       User    @relation(fields: [createdByUserId], references: [id], name: "employee_created_by_user")
+  updatedBy       User?   @relation(fields: [updatedByUserId], references: [id], name: "employee_updated_by_user")
+
+  @@id([companyId, userId])
+  @@map("employee")
+}
+model PasswordResetToken {
+  email     String
+  token     String   @id
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model BlacklistedToken {
+  token     String   @id
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
