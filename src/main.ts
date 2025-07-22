@@ -11,13 +11,13 @@ import * as compression from 'compression';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 const corsOptions: CorsOptions = {
   origin: true,
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'], // Allow specific HTTP methods
-  allowedHeaders: ['*'], // Allow specific headers
+  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+  allowedHeaders: ['*'], 
 };
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(compression()); // use compression to improve speed
+  app.use(compression()); 
   app.enableCors(corsOptions);
   app.setGlobalPrefix('api');
   // or "app.enableVersioning()";
